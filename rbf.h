@@ -9,19 +9,19 @@ class RBF
 private:
 	cv::Mat m_data_inv;
 
+    cv::Mat& initDataMatrix(const std::vector<cv::Point2f>& origPList);
+
+    bool generateSModificator(const std::vector<cv::Point2f>& oriSpace,
+                              const std::vector<cv::Point2f>& defSpace,
+                              std::vector<cv::Point2f>& S);
+
+    bool modifyPoints(std::vector<cv::Point2f>* pList,
+                      const std::vector<cv::Point2f>& oriSpace,
+                      const std::vector<cv::Point2f>& S);
+
 public:
     RBF(){}
 	~RBF(){}
-
-	cv::Mat& initDataMatrix(const std::vector<cv::Point2f>& origPList);
-
-    bool generateSModificator(const std::vector<cv::Point2f>& oriSpace, 
-                              const std::vector<cv::Point2f>& defSpace, 
-                              std::vector<cv::Point2f>& S);
-
-    bool modifyPoints(std::vector<cv::Point2f>* pList, 
-                      const std::vector<cv::Point2f>& oriSpace,
-                      const std::vector<cv::Point2f>& S);
 
     bool interpolate(const std::vector<cv::Point2f>& oriSpace, 
                      const std::vector<cv::Point2f>& defSpace,
