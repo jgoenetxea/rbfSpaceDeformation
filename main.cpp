@@ -18,6 +18,7 @@ using cv::Point2f;
 using cv::imshow;
 using cv::waitKey;
 using cv::flip;
+using cv::Matx22f;
 
 int main() {
     cout << "Start this staff!" << endl;
@@ -37,17 +38,14 @@ int main() {
     original.push_back(Point2f(3, 3));
     
     // Space transformation
-    Mat trans(2, 2, CV_32F);
-    trans.at<float>(0, 0) = 2;
-    trans.at<float>(0, 1) = 0;
-    trans.at<float>(1, 0) = -1;
-    trans.at<float>(1, 1) = 1;
+    Matx22f trans(1, -0.5,
+                  0, 1);
     
-    /*size_t m = original.size();
+    size_t m = original.size();
     vector<Point2f> deformed(m);
     for (size_t i = 0; i < m; ++i) {
 		deformed[i] = trans * original[i];
-	}*/
+	}
     
     // Drawing
     Mat backImg;
@@ -85,6 +83,13 @@ int main() {
         // Draw moving dot
         cv::circle(backImg, Point2f(op.x * xStep, op.y * yStep), 
 				   dotSize + 2, CV_RGB(255, 0, 0), -1);
+				   
+		// Draw deformed dots
+        for (size_t i = 0; i < n; ++i) {
+            cv::circle(backImg, Point2f(deformed[i].x * xStep, 
+                       deformed[i].y * yStep), dotSize + 1, 
+                       CV_RGB(0, 255, 255), 1);
+        }
                        
         // Draw original dots
         for (size_t i = 0; i < n; ++i) {
