@@ -101,6 +101,9 @@ int main() {
     original.push_back(Point2f(1, 3));
     original.push_back(Point2f(2, 3));
     original.push_back(Point2f(3, 3));
+    // Extra original points
+    //original.push_back(Point2f(1, 3));
+    rbf.setOriginalSpace(original);
     
     // Space transformation
     Matx22f trans(1, -0.5,
@@ -111,6 +114,7 @@ int main() {
     for (size_t i = 0; i < m; ++i) {
 		deformed[i] = trans * original[i];
 	}
+	rbf.setDeformedSpace(deformed);
     
     // Drawing
     Mat backImg = Mat::zeros(height, width, CV_8UC3);
@@ -161,7 +165,7 @@ int main() {
         op[0].y = 2 + lambda * cos(cont);
         
         // RBF interpolation
-        rbf.interpolate(original, deformed, op, &dp);
+        rbf.interpolate(op, &dp);
 
         // Draw moving def dot
         cv::circle(backImg, Point2f(dp[0].x * xStep, dp[0].y * yStep),
@@ -235,6 +239,9 @@ int main() {
             deformed[6] = Point2f(0.5, 3.5);
             deformed[7] = Point2f(1.8, 2.8);
             deformed[8] = Point2f(2.5, 2.5);
+            // Extra point
+            //deformed[9] = Point2f(0.6, 3.5);
+            rbf.setDeformedSpace(deformed);
             clearImages = true;
             break;
         }
@@ -248,6 +255,9 @@ int main() {
             deformed[6] = Point2f(0.5, 3.5);
             deformed[7] = Point2f(2, 3);
             deformed[8] = Point2f(3.5, 3.5);
+            // Extra point
+            //deformed[9] = Point2f(0.6, 3.5);
+            rbf.setDeformedSpace(deformed);
             clearImages = true;
             break;
         }
@@ -261,6 +271,9 @@ int main() {
             deformed[6] = Point2f(0.7, 2.7);
             deformed[7] = Point2f(2.1, 3.6);
             deformed[8] = Point2f(3.2, 2.9);
+            // Extra point
+            //deformed[9] = Point2f(0.8, 2.7);
+            rbf.setDeformedSpace(deformed);
             clearImages = true;
             break;
         }

@@ -1,8 +1,45 @@
 #include "rbf.h"
+#include <iostream>
 
-#define MEASURE_TIME 0
+using std::cout;
+using std::endl;
 
-cv::Mat& RBF::initDataMatrix(const std::vector<cv::Point2f>& origPList) {
+void RBF::setOriginalSpace(const std::vector<cv::Point2f>& oriSpace) {
+	m_oriSpace = oriSpace;
+	RBF::initDataMatrix(m_oriSpace, &m_data_inv);
+}
+	
+bool RBF::setDeformedSpace(const std::vector<cv::Point2f>& defSpace) {
+	if (m_oriSpace.size() == 0) {
+		cout << "Original space must be defined first!" << endl;
+		return false;
+	}
+	if (m_oriSpace.size() != defSpace.size()) {
+		cout << "Original and deformed spaces have different size!" 
+		     << endl;
+		return false;
+	}
+	m_defSpace = defSpace;
+	return RBF::generateSModificator(m_oriSpace, m_defSpace, m_data_inv, 
+									 m_S);
+}
+
+bool RBF::interpolate(const std::vector<cv::Point2f>& oriPoints,
+                      std::vector<cv::Point2f>* defPoints) {
+	if (m_oriSpace.size() == 0) {
+		cout << "Original space must be defined first!" << endl;
+		return false;
+	}
+	if (m_defSpace.size() == 0) {
+		cout << "Deformed space must be defined first!" << endl;
+		return false;
+	}
+    (*defPoints) = oriPoints;
+	return RBF::modifyPoints(defPoints, m_oriSpace, m_S);
+}
+
+void RBF::initDataMatrix(const std::vector<cv::Point2f>& origPList,
+							 cv::Mat* data_inv) {
 	size_t n = origPList.size();
 	cv::Mat data(n, n, CV_64F);
 	std::vector<cv::Point2f> F(n);
@@ -17,12 +54,12 @@ cv::Mat& RBF::initDataMatrix(const std::vector<cv::Point2f>& origPList) {
 			data.at<double>(i,j) = mag;
 		}
 	}
-	m_data_inv = data.inv(cv::DECOMP_LU);
-	return m_data_inv;
+	(*data_inv) = data.inv(cv::DECOMP_LU);
 }
 
 bool RBF::generateSModificator(const std::vector<cv::Point2f>& oriSpace, 
-                               const std::vector<cv::Point2f>& defSpace, 
+                               const std::vector<cv::Point2f>& defSpace,
+                               const cv::Mat& data_inv, 
                                std::vector<cv::Point2f>& S) {
 	size_t n = oriSpace.size();
 	std::vector <cv::Point2f> F(n);
@@ -36,8 +73,8 @@ bool RBF::generateSModificator(const std::vector<cv::Point2f>& oriSpace,
 		S[i].x = 0.0;
 		S[i].y = 0.0;
 		for (size_t j = 0; j < n; ++j) {
-			S[i].x += m_data_inv.at<double>(i,j) * F[j].x;
-			S[i].y += m_data_inv.at<double>(i,j) * F[j].y;
+			S[i].x += data_inv.at<double>(i,j) * F[j].x;
+			S[i].y += data_inv.at<double>(i,j) * F[j].y;
 		}
 	}
 
@@ -73,13 +110,14 @@ bool RBF::interpolate(const std::vector<cv::Point2f>& oriSpace,
 		return false;
 	}
 
-	initDataMatrix(oriSpace);
+	cv::Mat data_inv;
+	RBF::initDataMatrix(oriSpace, &data_inv);
 	
     std::vector<cv::Point2f> S;
-	generateSModificator(oriSpace, defSpace, S);
+	RBF::generateSModificator(oriSpace, defSpace, data_inv, S);
 
     (*defPoints) = oriPoints;
-	modifyPoints(defPoints, oriSpace, S);
+	RBF::modifyPoints(defPoints, oriSpace, S);
 
 	return true;
 }

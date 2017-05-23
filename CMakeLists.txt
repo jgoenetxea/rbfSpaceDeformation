@@ -2,7 +2,7 @@
 #          CMake Project Configuration              #
 #---------------------------------------------------#
 # CMake will issue a warning if you don't set this
-cmake_minimum_required( VERSION 2.8 )
+cmake_minimum_required( VERSION 3.1)
 
 # If you don't name the project, it will take the default name "Project"
 # Note: this must be set in the beginning of the CMakeLists file
